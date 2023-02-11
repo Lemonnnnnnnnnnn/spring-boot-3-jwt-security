@@ -37,7 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (requestTokenHeader.startsWith("Bearer ")) {
             return requestTokenHeader.substring(7);
         }
-        logger.warn("requestTokenHeader.startsWith fail");
+        logger.warn("requestTokenHeader have not Bearer");
         return null;
     }
 
@@ -88,7 +88,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String jwtToken = removeBearer(requestTokenHeader);
 
-        // 状态：未登录，无token
+//        // 状态：无token
         if (jwtToken == null) {
             logger.warn("JWT Token does not begin with Bearer String");
             filterChain.doFilter(request, response);
@@ -96,7 +96,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
 
-        // 状态：已登录，但token过期或token解析失败
+        // 状态：token过期或token解析失败
         String username = getUsername(jwtToken);
         if (username == null) {
             filterChain.doFilter(request, response);

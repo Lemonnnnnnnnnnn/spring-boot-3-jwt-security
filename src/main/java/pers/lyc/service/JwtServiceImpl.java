@@ -31,8 +31,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
 
-    // 从token中获取所有数据，如过期时间、用户名、加密算法等
-    // 这些数据用键值对的形式存储在token中，一个Claim表示一个键值对
+    // 从token中获取所有claims
     private Claims getAllClaimsFromToken(String token) {
         return Jwts
                 .parser()
@@ -41,11 +40,12 @@ public class JwtServiceImpl implements JwtService {
                 .getBody(); // 获取结果
     }
 
-    // 从Token中获得指定数据
+    // 从claims中获取指定数据
     private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        // 从token中获得所有Claim
+        // 从token中获得所有Claims
         final Claims claims = getAllClaimsFromToken(token);
-//         利用claimResolver解析claim，
+
+//         利用claimResolver解析claim.
         return claimsResolver.apply(claims);
     }
 
@@ -86,5 +86,6 @@ public class JwtServiceImpl implements JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-
 }
+
+
