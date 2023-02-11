@@ -1,0 +1,10 @@
+services:
+  mysql:
+    container_name: mysql_hello_jwt
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: eMbq+sUWdy
+      MYSQL_DATABASE: hello_jwt
+    ports:
+      - "3306:3306"
+    restart: unless-stopped

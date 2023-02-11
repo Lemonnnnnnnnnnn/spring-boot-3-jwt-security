@@ -1,0 +1,16 @@
+@startuml sequence-filterChain
+actor client
+
+client -> servlet应用 : 请求
+servlet应用 -> SecurityContextPersistenceFilter
+SecurityContextPersistenceFilter -> SecurityContextPersistenceFilter : 生成上下文 SecurityContext
+SecurityContextPersistenceFilter -> ..
+.. -> "jwtRequestFilter(自定义过滤器)"
+"jwtRequestFilter(自定义过滤器)" -> "jwtRequestFilter(自定义过滤器)" : 向 SecurityContext 中添加用户认证信息 Authentication
+"jwtRequestFilter(自定义过滤器)" -> UsernamePasswordAuthenticationFilter
+UsernamePasswordAuthenticationFilter -> ...
+... -> FilterSecurityInterceptor :
+FilterSecurityInterceptor  -> FilterSecurityInterceptor : 检查 SecurityContext 中是否有用户认证信息，如果没有，拦截请求
+FilterSecurityInterceptor -> Controller : 如果有用户认证信息，分配控制器处理
+
+@enduml

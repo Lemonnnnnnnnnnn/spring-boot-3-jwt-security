@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor Client
+control AuthenticationController
+participant AuthenticationService
+entity User
+participant PasswordEncoder
+participant UserRepository
+participant JwtService
+
+Client -> AuthenticationController : 访问/register
+AuthenticationController -> AuthenticationService : 传递请求参数username,password
+AuthenticationService -> PasswordEncoder : 加密密码
+AuthenticationService -> User : 生成实例user
+User --> AuthenticationService :
+AuthenticationService -> UserRepository : 将user通过ORM存入数据库
+AuthenticationService -> JwtService : 将user转化为token
+JwtService --> AuthenticationService : 返回token
+AuthenticationService --> AuthenticationController : 返回token
+AuthenticationController --> Client : 返回token
+
+@enduml

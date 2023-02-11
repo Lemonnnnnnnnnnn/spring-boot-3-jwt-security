@@ -1,0 +1,99 @@
+@startuml class
+
+class FilterChain{
+    - CorsFilter
+    - CsrfFilter
+    - LogoutFilter
+    ...
+    - UsernamePasswordAuthenticationFilter
+}
+note left of FilterChain : FilterChain.doFilter(request, response)\n 调用doFilter()进入下一个Filter
+
+
+
+package Authentication {
+    class AuthenticationManager{
+    }
+
+    package ProviderManager{
+        interface AuthenticationProvider{
+        }
+
+        package "username/password-based authentication"{
+                class DaoAuthenticationProvider{
+                    + setUserDetailService() : 获得用户详情
+                    + setPasswordEncoder() : 设置解码器
+                }
+
+                interface UserDetailService{
+                    + loadUserByUsername()
+                }
+
+                DaoAuthenticationProvider -- UserDetailService
+
+                class UsernamePasswordAuthenticationToken {
+                    - username
+                    - password
+                }
+        }
+        DaoAuthenticationProvider ..|> AuthenticationProvider : 实现
+    }
+
+
+    class SecurityContextHolder{
+    }
+
+
+    AuthenticationManager --> AuthenticationProvider : 调用
+}
+
+note left of Authentication : 用户认证
+
+package Authorization{
+
+}
+
+interface Filter/DelegatingFilterProxy{
+}
+
+class UsernamePasswordAuthenticationFilter{
+}
+
+UsernamePasswordAuthenticationFilter ..|> "Filter/DelegatingFilterProxy" : 实现
+
+class SecurityFilterChain{
+}
+
+class SecurityFilter{
+}
+
+FilterChain ..> "Filter/DelegatingFilterProxy" : 依赖
+"Filter/DelegatingFilterProxy" ..> SecurityFilterChain : 依赖
+SecurityFilterChain ..> SecurityFilter : 依赖
+
+class PasswordEncoder{
+}
+class AuthenticationController{
+}
+class AuthenticationService{
+}
+class UserService{
+}
+class JwtAuthenticationFilter{
+}
+class JwtService{
+}
+class SecurityConfiguration{
+}
+
+
+class HelloController{
+}
+
+class User{
+}
+
+class UserRepository{
+}
+
+@enduml
