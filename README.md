@@ -9,6 +9,7 @@
 
 - 数据库改为mysql
 - 利用docker-compose生成mysql环境
+- 简化Filter等地方的代码
 
 ## 特性
 - 用户使用JWT方式进行注册和登录认证

@@ -2,10 +2,13 @@ package pers.lyc.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -16,6 +19,9 @@ import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService {
+
+    @Autowired
+    private UserService userService;
     // 过期时间
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
@@ -49,8 +55,13 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String getUsernameFromToken(String token) {
+    private String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public UserDetails getUserDetailFromToken(String token) {
+        String username = getClaimFromToken(token, Claims::getSubject);
+        return userService.loadUserByUsername(username);
     }
 
     // 从Token中获得过期时间，本例子中仅用于校验token是否有效
@@ -74,16 +85,39 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(userDetails.getUsername()) // 将用户名作为内含信息传入
                 .setIssuedAt(new Date(System.currentTimeMillis())) // 设置派发时间
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(getSignInKey(),SignatureAlgorithm.HS512) // 用HS512 + 密钥签名
+                .signWith(getSignInKey(), SignatureAlgorithm.HS512) // 用HS512 + 密钥签名
                 .compact(); // 将claims转化为JSON对象并加密成字符串
     }
 
     //    校验Token
-    public Boolean validateToken(String token, UserDetails userDetails) {
-//        从token中拿到用户名
-        final String username = getUsernameFromToken(token);
-        // 和指定的用户详情比较用户名
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+        if(token == null) {
+            System.out.println("jwt为空");
+            return false;
+        }
+        try{
+            if (isTokenExpired(token)){
+                System.out.println("jwt过期");
+                return false;
+            }
+        }catch(MalformedJwtException e){
+            System.out.println("jwt格式错误");
+            return false;
+        }
+
+        try {
+            // 因为本例中没有账号禁用等功能，在数据库中能找到username的数据就说明token有效
+            String username = getUsernameFromToken(token);
+            userService.loadUserByUsername(username);
+        } catch (IllegalArgumentException e) {
+            System.out.println("没能从token中解析出username");
+            return false;
+        }  catch (UsernameNotFoundException e) {
+            System.out.println("数据库中没找到username");
+            return false;
+        }
+
+        return true;
     }
 
 }
