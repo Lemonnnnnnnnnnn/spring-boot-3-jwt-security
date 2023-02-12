@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+Client -> FilterChain : 访问/login
+FilterChain -> AuthenticationController : permitAll()
+AuthenticationController -> AuthenticationService : 传递request
+AuthenticationService -> AuthenticationManager : 传递由用户名、密码组成的\nUsernamePasswordAuthenticationToken
+AuthenticationManager -> AuthenticationProvider : 调用authenticate
+AuthenticationProvider -> AuthenticationProvider : 调用getUserDetailService.loadUserByUsername(username)\n获取数据库用户信息
+AuthenticationProvider -> AuthenticationProvider : 调用additionalAuthenticationChecks().passwordEncoder.matches(password)\n 调用解码方法检查token和数据库信息是否匹配
+AuthenticationProvider -> AuthenticationProvider : 若匹配，生成授权信息 Authentication ，并将用户详情写入其 Principal .
+AuthenticationProvider --> AuthenticationManager : 返回授权信息 Authentication
+AuthenticationManager --> AuthenticationService :  返回授权信息 Authentication
+AuthenticationService -> AuthenticationService : 生成token
+AuthenticationService --> AuthenticationController : 返回token
+AuthenticationController --> Client : 返回token
+@enduml

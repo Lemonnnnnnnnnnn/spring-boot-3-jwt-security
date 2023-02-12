@@ -1,7 +1,7 @@
 package pers.lyc.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +23,7 @@ public class AuthenticationService {
     private JwtServiceImpl jwtServiceImpl;
 
     @Autowired
-    private ProviderManager providerManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,10 +43,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(LoginRequest request) {
         // 匹配传入的用户名、密码
-        // authenticationManager -> ProviderManager  -> AbstractUserDetailsAuthenticationProvider -> DaoAuthenticationProvider ->
-        // DaoAuthenticationProvider.getUserDetailService.loadUserByUsername(username) ->
-        // DaoAuthenticationProvider.additionalAuthenticationChecks().passwordEncoder.matches(password)
-        Authentication authentication = providerManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()
