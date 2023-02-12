@@ -34,4 +34,4 @@
 1. docker-compose up ：使用docker-compose初始化数据库。 
 2.  mvn spring-boot:run : 启动项目
 
--> 项目运行在： http://localhost:8080，本项目无前端，使用postman等请求模拟器使用。
+-> 项目运行在： http://localhost:8080。本项目无前端，使用postman等请求模拟器使用。
